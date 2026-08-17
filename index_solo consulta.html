@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ 
+    <script>
+    (function() {
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+      
+       document.addEventListener('keydown', function(e) {
+            const key = e.key.toLowerCase();
+            if ((e.ctrlKey && (key === 'u' || key === 's' || key === 'c' || key === 'i' || key === 'j')) ||
+                (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) ||
+                e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        let devtoolsTriggered = false;
+        setInterval(function() {
+            if (devtoolsTriggered) return;
+            const before = new Date();
+            debugger; 
+            const after = new Date();
+            if (after - before > 100) { 
+                devtoolsTriggered = true;
+                document.body.innerHTML = '<div style="text-align:center; padding:50px; font-family:sans-serif;"><h1 style="color:#042C53;">⚠️ Acceso no autorizado</h1><p>El uso de herramientas de desarrollo no está permitido en este recurso institucional.</p><p style="font-size:14px; margin-top:30px;">🔒 COBAED · Dirección Académica</p></div>';
+            }
+        }, 2000);
+        
+        const style = document.createElement('style');
+        style.textContent = `body { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }`;
+        document.head.appendChild(style);
+    })();
+    </script>
+
+
+
+ <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Academias Estatales</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS DE DISEÑO — Paleta Institucional
+    ============================================================ */
+    :root {
+      --c-bg:          #F5F3EF;
+      --c-surface:     #FFFFFF;
+      --c-sidebar:     #1A1A1A;
+      --c-accent:      #7C5C3E;
+      --c-accent-lt:   #A6825F;
+      --c-accent-bg:   #EDE5DA;
+      --c-text:        #1C1C1C;
+      --c-text-muted:  #6B6559;
+      --c-border:      #D8D0C4;
+      --c-gris:        #4A4A4A;
+      --c-success:     #3E7C5C;
+      --c-warn:        #8C6D2F;
+      --c-error:       #7C3E3E;
+      --c-blue-soft:   #3E5C7C;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.13);
+      --radius:    10px;
+      --radius-lg: 16px;
+      --font-body: 'Inter', sans-serif;
+      --font-display: 'Playfair Display', serif;
+    }
+
+    /* ============================================================
+       RESET Y BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--c-bg);
+      color: var(--c-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================================
+       BARRA LATERAL — FIRMA VISUAL
+    ============================================================ */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: linear-gradient(180deg, #1A1A1A 0%, #7C5C3E 50%, #A6825F 100%);
+      z-index: 100;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    .site-header {
+      background: var(--c-sidebar);
+      color: #fff;
+      padding: 20px 40px 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      z-index: 10;
+    }
+    .site-header__brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .site-header__icon {
+      width: 42px; height: 42px;
+      background: var(--c-accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .site-header__title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+      line-height: 1.25;
+    }
+    .site-header__sub {
+      font-size: .72rem;
+      color: #A09588;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .btn-refresh {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid #3A3A3A;
+      background: transparent;
+      color: #C8BFB5;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-refresh:hover { border-color: var(--c-accent); color: #fff; background: #2A2A2A; }
+
+    /* ============================================================
+       MAIN
+    ============================================================ */
+    .main {
+      flex: 1;
+      padding: 36px 40px 60px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ============================================================
+       DASHBOARD
+    ============================================================ */
+    .dash-header { margin-bottom: 28px; }
+    .section-label {
+      font-size: .68rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--c-text);
+      margin-bottom: 4px;
+    }
+    .section-desc {
+      font-size: .88rem;
+      color: var(--c-text-muted);
+      margin-bottom: 0;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    .dash-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .dash-header-row .section-desc { margin-bottom: 0; }
+
+    /* KPIs */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--c-surface);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px;
+      border: 1px solid var(--c-border);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .kpi-card__label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--c-text-muted);
+    }
+    .kpi-card__value {
+      font-family: var(--font-display);
+      font-size: 2.1rem;
+      font-weight: 700;
+      color: var(--c-text);
+      line-height: 1;
+    }
+    .kpi-card__sub { font-size: .75rem; color: var(--c-text-muted); }
+    .kpi-card.accent {
+      background: var(--c-accent);
+      border-color: var(--c-accent);
+    }
+    .kpi-card.accent .kpi-card__label { color: rgba(255,255,255,.7); }
+    .kpi-card.accent .kpi-card__value { color: #fff; }
+    .kpi-card.accent .kpi-card__sub { color: rgba(255,255,255,.6); }
+
+    /* TABLA SUBSISTEMAS */
+    .table-wrap {
+      background: var(--c-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--c-border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .table-wrap__header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .table-wrap__title {
+      font-weight: 700;
+      font-size: .95rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .82rem;
+    }
+    th {
+      background: #F0EDE7;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      color: var(--c-gris);
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--c-border);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #F0EDE7;
+      color: var(--c-text);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFAF8; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+    .badge--completo   { background: #D8F0E6; color: #2E6B48; }
+    .badge--parcial    { background: #FDF0D3; color: #7A5B1A; }
+    .badge--sin-envio  { background: #F5E8E8; color: #6B2A2A; }
+    .badge--dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .badge--completo .badge--dot  { background: #3E7C5C; }
+    .badge--parcial  .badge--dot  { background: #C8921A; }
+    .badge--sin-envio .badge--dot { background: #9B3B3B; }
+
+    /* ACADEMIAS PILLS */
+    .acad-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .acad-pill {
+      width: 22px; height: 22px;
+      border-radius: 5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .6rem;
+      font-weight: 700;
+      cursor: default;
+    }
+    .acad-pill.has  { background: #D8F0E6; color: #2E6B48; }
+    .acad-pill.miss { background: #F0EDE7; color: #C8BFB5; }
+
+    /* BARRAS POR ACADEMIA */
+    .acad-bar-row {
+      background: var(--c-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--c-border);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .acad-bar-title {
+      font-weight: 700;
+      font-size: .95rem;
+      margin-bottom: 18px;
+    }
+    .acad-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .acad-bar-label {
+      font-size: .78rem;
+      color: var(--c-text);
+      width: 220px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .acad-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: #EDEAE5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .acad-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--c-accent), var(--c-accent-lt));
+      border-radius: 4px;
+      transition: width .6s ease;
+    }
+    .acad-bar-count {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--c-accent);
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background: var(--c-sidebar);
+      color: #7A7268;
+      font-size: .72rem;
+      padding: 20px 40px;
+      letter-spacing: .02em;
+      line-height: 1.6;
+      border-top: 2px solid var(--c-accent);
+      text-align: center;
+    }
+    .footer-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .footer-legal {
+      font-size: .65rem;
+      color: #B8AFA5;
+      text-align: justify;
+      padding: 0 12px;
+    }
+    .footer-legal strong {
+      color: #D5CDC2;
+      font-weight: 600;
+    }
+    .footer-legal .highlight {
+      color: var(--c-accent-lt);
+      font-weight: 600;
+    }
+    .footer-divider {
+      width: 60px;
+      height: 2px;
+      background: var(--c-accent);
+      margin: 6px auto;
+      border-radius: 2px;
+    }
+
+    /* LOADER */
+    #initial-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--c-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 9999;
+      transition: opacity .4s;
+    }
+    #initial-loader .loader-icon { font-size: 2.5rem; }
+    #initial-loader p {
+      font-size: .85rem;
+      color: var(--c-text-muted);
+      letter-spacing: .06em;
+    }
+    #initial-loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(124,92,62,.3);
+      border-top-color: var(--c-accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform .35s ease, opacity .35s ease;
+      max-width: 340px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast--success { background: var(--c-success); }
+    .toast--error   { background: var(--c-error); }
+    .toast--loading { background: var(--c-blue-soft); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .site-header { padding: 16px 20px 16px 28px; }
+      .main { padding: 24px 20px 48px 28px; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .acad-bar-label { width: 130px; }
+    }
+    @media (max-width: 550px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .footer-legal { font-size: .6rem; }
+      .site-footer { padding: 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra lateral -->
+  <div class="sidebar"></div>
+
+  <!-- Loader inicial -->
+  <div id="initial-loader">
+    <div class="loader-icon">📊</div>
+    <p>CARGANDO DASHBOARD...</p>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="site-header__brand">
+      <div class="site-header__icon">🎓</div>
+      <div>
+        <div class="site-header__title">Dashboard de Participación</div>
+        <div class="site-header__sub">Academias Estatales — Concurso Estatal</div>
+      </div>
+    </div>
+    <button class="btn-refresh" onclick="cargarDashboard()">
+      <span>↻</span> Actualizar
+    </button>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="dash-header">
+      <div class="section-label">Control de seguimiento</div>
+      <div class="dash-header-row">
+        <h1 class="section-title">Dashboard de Participación</h1>
+        <span style="font-size:.78rem;color:var(--c-text-muted);" id="last-update">—</span>
+      </div>
+      <p class="section-desc">Estado en tiempo real de los registros por subsistema y academia.</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row" id="kpi-row">
+      <div class="kpi-card accent">
+        <div class="kpi-card__label">Total subsistemas</div>
+        <div class="kpi-card__value" id="d-total">15</div>
+        <div class="kpi-card__sub">catálogo fijo</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Con envío</div>
+        <div class="kpi-card__value" id="d-con-envio">—</div>
+        <div class="kpi-card__sub">al menos una academia</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Sin envío</div>
+        <div class="kpi-card__value" id="d-sin-envio">—</div>
+        <div class="kpi-card__sub">pendientes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Participación parcial</div>
+        <div class="kpi-card__value" id="d-parcial">—</div>
+        <div class="kpi-card__sub">1–7 academias</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Participación completa</div>
+        <div class="kpi-card__value" id="d-completo">—</div>
+        <div class="kpi-card__sub">8 academias</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Total registros</div>
+        <div class="kpi-card__value" id="d-general">—</div>
+        <div class="kpi-card__sub">participantes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__label">Avance general</div>
+        <div class="kpi-card__value" id="d-avance">0%</div>
+        <div class="kpi-card__sub">de 120 posibles</div>
+      </div>
+    </div>
+
+    <!-- TABLA SUBSISTEMAS -->
+    <div class="table-wrap">
+      <div class="table-wrap__header">
+        <span class="table-wrap__title">Estado por Subsistema</span>
+        <span style="font-size:.75rem;color:var(--c-text-muted);" id="tabla-ts"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="tabla-subsistemas">
+          <thead>
+            <tr>
+              <th>Subsistema</th>
+              <th>Estado</th>
+              <th>Academias</th>
+              <th>Registros</th>
+              <th>Último registro</th>
+              <th>Responsable</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body">
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--c-text-muted);">Cargando datos…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BARRAS POR ACADEMIA -->
+    <div class="acad-bar-row">
+      <div class="acad-bar-title">Registros por Academia</div>
+      <div id="acad-bars">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-divider"></div>
+      <div class="footer-legal">
+        <strong>AVISO DE CONFIDENCIALIDAD</strong>
+        <span style="display:inline-block; margin:0 4px; color:#B8AFA5;">·</span>
+        De conformidad con lo establecido en el inciso a del artículo 57 del
+        <strong>“Acuerdo por el que se emiten las políticas y disposiciones para impulsar el uso y aprovechamiento de la informática, el gobierno digital, las tecnologías de la información y comunicación, y la seguridad de la información en la Administración Pública Federal”</strong>,
+        se informa que este mensaje y los datos adjuntos son para uso exclusivo de la persona o entidad a la que expresamente ha sido enviada, el cual puede contener información que por su naturaleza deba ser considerada como
+        <span class="highlight">CONFIDENCIAL</span> o <span class="highlight">RESERVADA</span>, en términos de lo dispuesto en la
+        <strong>Ley General de Transparencia y Acceso a la Información Pública</strong> y en la
+        <strong>Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</strong>.
+        Si por error ha recibido esta comunicación:
+        <span class="highlight">1)</span> queda estrictamente prohibido la revelación, retransmisión, difusión, copia, impresión, modificación, alteración en toda o en alguna de sus partes o el uso de la información contenida en el archivo electrónico sea diverso al objeto por el cual se emitió;
+        <span class="highlight">2)</span> notifíquelo al remitente; y
+        <span class="highlight">3)</span> bórrelo de inmediato y en forma permanente, junto con cualquier copia digital o impresa, así como cualquier archivo anexo al mismo.
+      </div>
+      <div class="footer-divider" style="width:40px; margin:8px auto 2px;"></div>
+      <div style="font-size:.6rem; color:#4A4440; letter-spacing:.08em; text-transform:uppercase; margin-top:2px;">
+        Sistema de Registro Académico — Control Documental
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    /* ============================================================
+       CONFIGURACIÓN — REEMPLAZA CON LA URL DE TU APPS SCRIPT
+    ============================================================ */
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvapDDlRi6d3I9E5DkbUnM_FP_SC8mUZ1Ymxmllwtg7bRMm-9A6D7RSTT9bv40_k1h/exec';
+
+    const SUBSISTEMAS = [
+      'Albert Einstein', 'ByCENED', 'CECATI', 'CECyTED', 'COBAED',
+      'CONALEP', 'DGB 9/31 de Gómez', 'DGB Villa Unión', 'DGETAyCM',
+      'DGETI', 'ESCUELAS PARTICULARES', 'INSTITUTO "18 DE MARZO"',
+      'PREPARATORIAS ESTATALES', 'TELEBACHILLERATO COMUNITARIO', 'UJED'
+    ];
+
+    const ACADEMIAS = [
+      { id: 'LC',   label: 'Lengua y Comunicación',                          abbr: 'LC'  },
+      { id: 'PM',   label: 'Pensamiento Matemático',                         abbr: 'PM'  },
+      { id: 'CN',   label: 'Ciencias Naturales-Experimentales y Tecnología', abbr: 'CN'  },
+      { id: 'CS',   label: 'Ciencias Sociales',                              abbr: 'CS'  },
+      { id: 'CH',   label: 'Conciencia Histórica',                           abbr: 'CH'  },
+      { id: 'PF',   label: 'Pensamiento Filosófico y Humanidades',           abbr: 'PF'  },
+      { id: 'CD',   label: 'Cultura Digital',                                abbr: 'CD'  },
+      { id: 'ING',  label: 'Inglés',                                         abbr: 'IN'  }
+    ];
+
+    /* ============================================================
+       INICIO
+    ============================================================ */
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarDashboard();
+      setTimeout(() => {
+        document.getElementById('initial-loader').classList.add('hidden');
+      }, 800);
+    });
+
+    /* ============================================================
+       CARGAR DASHBOARD
+    ============================================================ */
+    async function cargarDashboard() {
+      const btn = document.querySelector('.btn-refresh');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Cargando…';
+
+      try {
+        const url = APPS_SCRIPT_URL + '?action=resumen&t=' + Date.now();
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (data.success) {
+          actualizarDashboard(data.resumen);
+          document.getElementById('last-update').textContent = 'Última actualización: ' + new Date().toLocaleString('es-MX');
+        } else {
+          throw new Error(data.error || 'Error al cargar datos');
+        }
+      } catch (e) {
+        showToast('✗ Error al cargar: ' + e.message, 'error');
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>↻</span> Actualizar';
+      }
+    }
+
+    /* ============================================================
+       ACTUALIZAR DASHBOARD
+    ============================================================ */
+    function actualizarDashboard(r) {
+      const totalSubsistemas = SUBSISTEMAS.length;
+      const totalAcademias = ACADEMIAS.length;
+      const pct = Math.round((r.totalRegistros / (totalSubsistemas * totalAcademias)) * 100);
+
+      document.getElementById('d-total').textContent = totalSubsistemas;
+      document.getElementById('d-con-envio').textContent = r.conEnvio ?? 0;
+      document.getElementById('d-sin-envio').textContent = r.sinEnvio ?? 0;
+      document.getElementById('d-parcial').textContent = r.parcial ?? 0;
+      document.getElementById('d-completo').textContent = r.completo ?? 0;
+      document.getElementById('d-general').textContent = r.totalRegistros ?? 0;
+      document.getElementById('d-avance').textContent = pct + '%';
+
+      // Tabla
+      const tbody = document.getElementById('tabla-body');
+      if (!r.porSubsistema || r.porSubsistema.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--c-text-muted);">Sin registros aún</td></tr>';
+      } else {
+        const mapaReal = {};
+        r.porSubsistema.forEach(s => { mapaReal[s.nombre] = s; });
+
+        tbody.innerHTML = SUBSISTEMAS.map(nombre => {
+          const s = mapaReal[nombre] || { nombre, academias: [], totalRegistros: 0, ultimaFecha: '—', responsable: '—' };
+          const numAcad = s.academias?.length || 0;
+          const estado = numAcad === 0 ? 'sin-envio' : numAcad === ACADEMIAS.length ? 'completo' : 'parcial';
+          const badgeTxt = estado === 'completo' ? 'Completo' : estado === 'parcial' ? 'Parcial' : 'Sin envío';
+
+          const pills = ACADEMIAS.map(a => {
+            const tiene = (s.academias || []).some(sa => sa.includes(a.abbr) || sa.includes(a.label));
+            return `<span class="acad-pill ${tiene ? 'has' : 'miss'}" title="${a.label}">${a.abbr}</span>`;
+          }).join('');
+
+          return `
+            <tr>
+              <td><strong>${nombre}</strong></td>
+              <td><span class="badge badge--${estado}"><span class="badge--dot"></span>${badgeTxt}</span></td>
+              <td><div class="acad-pills">${pills}</div></td>
+              <td style="font-weight:700;">${s.totalRegistros || 0}</td>
+              <td style="color:var(--c-text-muted);font-size:.78rem;">${s.ultimaFecha || '—'}</td>
+              <td style="font-size:.78rem;">${s.responsable || '—'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('tabla-ts').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-MX');
+
+      // Barras por academia
+      const maxVal = Math.max(...ACADEMIAS.map(a => (r.porAcademia || {})[a.label] || 0), 1);
+      const container = document.getElementById('acad-bars');
+      container.innerHTML = ACADEMIAS.map(a => {
+        const v = (r.porAcademia || {})[a.label] || 0;
+        const pctBar = Math.round((v / maxVal) * 100);
+        return `
+          <div class="acad-bar-item">
+            <span class="acad-bar-label" title="${a.label}">${a.label}</span>
+            <div class="acad-bar-bg">
+              <div class="acad-bar-fill" style="width:${pctBar}%"></div>
+            </div>
+            <span class="acad-bar-count">${v}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    let toastTimer;
+    function showToast(msg, tipo = 'success') {
+      const t = document.getElementById('toast');
+      clearTimeout(toastTimer);
+      t.className = 'toast toast--' + tipo;
+      const icon = tipo === 'success' ? '✓' : tipo === 'error' ? '✗' : '<div class="spinner"></div>';
+      t.innerHTML = icon + ' ' + msg;
+      t.classList.add('show');
+      if (tipo !== 'loading') {
+        toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
+      }
+    }
+  </script>
+</body>
+</html>
