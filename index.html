@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- 
-    <script>
+
+      <script>
     (function() {
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
@@ -37,11 +37,11 @@
     })();
     </script>
 
-
-
- <meta charset="UTF-8" />
+  
+  
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — Academias Estatales</title>
+  <title>Registro de Participantes — Academias Estatales</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -51,22 +51,23 @@
   <style>
     /* ============================================================
        TOKENS DE DISEÑO — Paleta Institucional
+       Negro, Blanco, Gris, Beige, Tierra + tonos suaves
     ============================================================ */
     :root {
-      --c-bg:          #F5F3EF;
-      --c-surface:     #FFFFFF;
-      --c-sidebar:     #1A1A1A;
-      --c-accent:      #7C5C3E;
-      --c-accent-lt:   #A6825F;
-      --c-accent-bg:   #EDE5DA;
-      --c-text:        #1C1C1C;
-      --c-text-muted:  #6B6559;
-      --c-border:      #D8D0C4;
-      --c-gris:        #4A4A4A;
-      --c-success:     #3E7C5C;
-      --c-warn:        #8C6D2F;
-      --c-error:       #7C3E3E;
-      --c-blue-soft:   #3E5C7C;
+      --c-bg:          #F5F3EF;       /* Beige claro de fondo */
+      --c-surface:     #FFFFFF;       /* Blanco de tarjetas */
+      --c-sidebar:     #1A1A1A;       /* Negro profundo */
+      --c-accent:      #7C5C3E;       /* Marrón/tierra principal */
+      --c-accent-lt:   #A6825F;       /* Tierra claro (hover) */
+      --c-accent-bg:   #EDE5DA;       /* Fondo beige cálido */
+      --c-text:        #1C1C1C;       /* Texto principal */
+      --c-text-muted:  #6B6559;       /* Texto secundario */
+      --c-border:      #D8D0C4;       /* Bordes suaves */
+      --c-gris:        #4A4A4A;       /* Gris medio */
+      --c-success:     #3E7C5C;       /* Verde tono */
+      --c-warn:        #8C6D2F;       /* Ámbar tierra */
+      --c-error:       #7C3E3E;       /* Rojo apagado */
+      --c-blue-soft:   #3E5C7C;       /* Azul suave institucional */
 
       --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
       --shadow-md: 0 4px 16px rgba(0,0,0,.10);
@@ -92,7 +93,7 @@
     }
 
     /* ============================================================
-       BARRA LATERAL — FIRMA VISUAL
+       BARRA LATERAL — FIRMA VISUAL ÚNICA
     ============================================================ */
     .sidebar {
       position: fixed;
@@ -144,24 +145,33 @@
       text-transform: uppercase;
       margin-top: 2px;
     }
-    .btn-refresh {
+    .site-header__nav {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-nav {
       padding: 8px 18px;
       border-radius: 6px;
-      font-size: .78rem;
+      font-size: .8rem;
       font-weight: 600;
       cursor: pointer;
-      border: 1.5px solid #3A3A3A;
+      border: none;
+      transition: background .2s, color .2s;
+      letter-spacing: .03em;
+    }
+    .btn-nav--active {
+      background: var(--c-accent);
+      color: #fff;
+    }
+    .btn-nav--ghost {
       background: transparent;
       color: #C8BFB5;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      border: 1px solid #3A3A3A;
     }
-    .btn-refresh:hover { border-color: var(--c-accent); color: #fff; background: #2A2A2A; }
+    .btn-nav--ghost:hover { background: #2A2A2A; color: #fff; }
 
     /* ============================================================
-       MAIN
+       MAIN LAYOUT
     ============================================================ */
     .main {
       flex: 1;
@@ -171,10 +181,13 @@
       width: 100%;
     }
 
+    /* TABS CONTENT */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     /* ============================================================
-       DASHBOARD
+       SECCIÓN FORMULARIO
     ============================================================ */
-    .dash-header { margin-bottom: 28px; }
     .section-label {
       font-size: .68rem;
       letter-spacing: .14em;
@@ -193,22 +206,302 @@
     .section-desc {
       font-size: .88rem;
       color: var(--c-text-muted);
-      margin-bottom: 0;
+      margin-bottom: 32px;
       max-width: 560px;
       line-height: 1.6;
     }
 
-    .dash-header-row {
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* TARJETA FORM */
+    .card {
+      background: var(--c-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      border: 1px solid var(--c-border);
+    }
+    .card + .card { margin-top: 20px; }
+
+    .card__section-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 4px;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--c-border);
     }
-    .dash-header-row .section-desc { margin-bottom: 0; }
+    .card__section-icon {
+      width: 32px; height: 32px;
+      background: var(--c-accent-bg);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      color: var(--c-accent);
+    }
+    .card__section-title {
+      font-weight: 600;
+      font-size: .92rem;
+      color: var(--c-text);
+    }
 
-    /* KPIs */
+    /* GRID DE CAMPOS */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .field-full { grid-column: 1 / -1; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--c-gris);
+      letter-spacing: .02em;
+    }
+    .field label .req { color: var(--c-accent); margin-left: 2px; }
+
+    .field input,
+    .field select,
+    .field textarea {
+      padding: 10px 14px;
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--c-text);
+      background: #FAFAF8;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--c-accent);
+      box-shadow: 0 0 0 3px rgba(124,92,62,.12);
+      background: #fff;
+    }
+    .field textarea { resize: vertical; min-height: 90px; }
+    .field select { appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6559' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 38px;
+    }
+
+    /* ACADEMIAS — CHECKBOXES */
+    .academias-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--c-border);
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: #FAFAF8;
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--c-gris);
+      user-select: none;
+    }
+    .check-item:hover { border-color: var(--c-accent-lt); background: var(--c-accent-bg); }
+    .check-item input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--c-accent);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .check-item.selected {
+      border-color: var(--c-accent);
+      background: var(--c-accent-bg);
+      color: var(--c-accent);
+    }
+
+    /* BTN SUBMIT */
+    .btn-submit {
+      width: 100%;
+      padding: 14px 28px;
+      background: var(--c-accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: background .2s, transform .1s;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-submit:hover { background: var(--c-accent-lt); }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { background: var(--c-border); color: #aaa; cursor: not-allowed; transform: none; }
+
+    /* ============================================================
+       PANEL LATERAL — RESUMEN
+    ============================================================ */
+    .sidebar-panel {
+      position: sticky;
+      top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .summary-card {
+      background: var(--c-sidebar);
+      color: #E8E0D8;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+    .summary-card__title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-card__title::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 16px;
+      background: var(--c-accent-lt);
+      border-radius: 2px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      font-size: .8rem;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row__label { color: #A09588; }
+    .stat-row__value {
+      font-weight: 700;
+      font-size: .95rem;
+      color: #fff;
+    }
+    .stat-row__value.green { color: #6FC99A; }
+    .stat-row__value.amber { color: #E0B96A; }
+    .stat-row__value.blue  { color: #8AAFD4; }
+
+    .progress-bar-wrap {
+      margin-top: 16px;
+    }
+    .progress-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .72rem;
+      color: #A09588;
+      margin-bottom: 6px;
+    }
+    .progress-bar-bg {
+      height: 6px;
+      background: #2A2A2A;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--c-accent), var(--c-accent-lt));
+      border-radius: 3px;
+      transition: width .6s ease;
+    }
+
+    /* Academias mini-grid en el panel */
+    .acad-grid-mini {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .acad-mini-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,.04);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: .75rem;
+    }
+    .acad-mini-label { color: #C8BFB5; }
+    .acad-mini-count {
+      font-weight: 700;
+      color: var(--c-accent-lt);
+      min-width: 22px;
+      text-align: right;
+    }
+
+    /* ============================================================
+       TOAST / NOTIFICACIÓN
+    ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform .35s ease, opacity .35s ease;
+      max-width: 340px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast--success { background: var(--c-success); }
+    .toast--error   { background: var(--c-error); }
+    .toast--loading { background: var(--c-blue-soft); }
+
+    /* ============================================================
+       SPINNER
+    ============================================================ */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       TAB: DASHBOARD
+    ============================================================ */
+    .dash-header { margin-bottom: 28px; }
+
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -240,13 +533,13 @@
       line-height: 1;
     }
     .kpi-card__sub { font-size: .75rem; color: var(--c-text-muted); }
-    .kpi-card.accent {
-      background: var(--c-accent);
-      border-color: var(--c-accent);
-    }
+    .kpi-card.accent { background: var(--c-accent); border-color: var(--c-accent); }
     .kpi-card.accent .kpi-card__label { color: rgba(255,255,255,.7); }
     .kpi-card.accent .kpi-card__value { color: #fff; }
     .kpi-card.accent .kpi-card__sub { color: rgba(255,255,255,.6); }
+    .kpi-card--completo   { background: #D8F0E6; }
+    .kpi-card--parcial    { background: #FDF0D3; }
+    .kpi-card--sin-envio  { background: #F5E8E8; }
 
     /* TABLA SUBSISTEMAS */
     .table-wrap {
@@ -293,7 +586,7 @@
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #FAFAF8; }
 
-    /* BADGES */
+    /* SEMÁFOROS */
     .badge {
       display: inline-flex;
       align-items: center;
@@ -315,7 +608,7 @@
     .badge--parcial  .badge--dot  { background: #C8921A; }
     .badge--sin-envio .badge--dot { background: #9B3B3B; }
 
-    /* ACADEMIAS PILLS */
+    /* MINI CHECKLIST DE ACADEMIAS EN TABLA */
     .acad-pills {
       display: flex;
       flex-wrap: wrap;
@@ -328,11 +621,12 @@
       font-size: .6rem;
       font-weight: 700;
       cursor: default;
+      title: attr(data-name);
     }
     .acad-pill.has  { background: #D8F0E6; color: #2E6B48; }
     .acad-pill.miss { background: #F0EDE7; color: #C8BFB5; }
 
-    /* BARRAS POR ACADEMIA */
+    /* BARRA DE ACADEMIAS */
     .acad-bar-row {
       background: var(--c-surface);
       border-radius: var(--radius-lg);
@@ -381,7 +675,26 @@
       text-align: right;
     }
 
-    /* FOOTER */
+    /* BTN REFRESH */
+    .btn-refresh {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--c-border);
+      background: #fff;
+      color: var(--c-gris);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-refresh:hover { border-color: var(--c-accent); color: var(--c-accent); }
+
+    /* ============================================================
+       FOOTER — AVISO DE CONFIDENCIALIDAD
+    ============================================================ */
     .site-footer {
       background: var(--c-sidebar);
       color: #7A7268;
@@ -392,6 +705,7 @@
       border-top: 2px solid var(--c-accent);
       text-align: center;
     }
+
     .footer-content {
       max-width: 1100px;
       margin: 0 auto;
@@ -399,20 +713,24 @@
       flex-direction: column;
       gap: 6px;
     }
+
     .footer-legal {
       font-size: .65rem;
       color: #B8AFA5;
       text-align: justify;
       padding: 0 12px;
     }
+
     .footer-legal strong {
       color: #D5CDC2;
       font-weight: 600;
     }
+
     .footer-legal .highlight {
       color: var(--c-accent-lt);
       font-weight: 600;
     }
+
     .footer-divider {
       width: 60px;
       height: 2px;
@@ -421,7 +739,9 @@
       border-radius: 2px;
     }
 
-    /* LOADER */
+    /* ============================================================
+       OVERLAY DE CARGA INICIAL
+    ============================================================ */
     #initial-loader {
       position: fixed;
       inset: 0;
@@ -441,47 +761,23 @@
       letter-spacing: .06em;
     }
     #initial-loader.hidden { opacity: 0; pointer-events: none; }
-    .spinner {
-      width: 18px; height: 18px;
-      border: 3px solid rgba(124,92,62,.3);
-      border-top-color: var(--c-accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* TOAST */
-    .toast {
-      position: fixed;
-      bottom: 30px; right: 30px;
-      padding: 14px 22px;
-      border-radius: 10px;
-      font-size: .88rem;
-      font-weight: 600;
-      color: #fff;
-      box-shadow: var(--shadow-lg);
-      z-index: 9999;
-      transform: translateY(80px);
-      opacity: 0;
-      transition: transform .35s ease, opacity .35s ease;
-      max-width: 340px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast--success { background: var(--c-success); }
-    .toast--error   { background: var(--c-error); }
-    .toast--loading { background: var(--c-blue-soft); }
-
-    /* RESPONSIVE */
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
     @media (max-width: 900px) {
       .site-header { padding: 16px 20px 16px 28px; }
       .main { padding: 24px 20px 48px 28px; }
+      .form-layout { grid-template-columns: 1fr; }
+      .sidebar-panel { position: static; }
+      .fields-grid { grid-template-columns: 1fr; }
+      .academias-grid { grid-template-columns: 1fr; }
       .kpi-row { grid-template-columns: repeat(2, 1fr); }
       .acad-bar-label { width: 130px; }
     }
     @media (max-width: 550px) {
+      .site-header__nav { gap: 4px; }
+      .btn-nav { padding: 7px 12px; font-size: .75rem; }
       .kpi-row { grid-template-columns: 1fr 1fr; }
       .footer-legal { font-size: .6rem; }
       .site-footer { padding: 16px 16px; }
@@ -490,14 +786,14 @@
 </head>
 <body>
 
-  <!-- Barra lateral -->
+  <!-- Barra lateral firma visual -->
   <div class="sidebar"></div>
 
   <!-- Loader inicial -->
   <div id="initial-loader">
-    <div class="loader-icon">📊</div>
-    <p>CARGANDO DASHBOARD...</p>
-    <div class="spinner"></div>
+    <div class="loader-icon">📋</div>
+    <p>CARGANDO SISTEMA...</p>
+    <div class="spinner" style="border-color:rgba(124,92,62,.3);border-top-color:var(--c-accent);"></div>
   </div>
 
   <!-- HEADER -->
@@ -509,112 +805,113 @@
         <div class="site-header__sub">Academias Estatales — Concurso Estatal</div>
       </div>
     </div>
-    <button class="btn-refresh" onclick="cargarDashboard()">
-      <span>↻</span> Actualizar
-    </button>
   </header>
 
   <!-- MAIN CONTENT -->
   <main class="main">
-    <div class="dash-header">
-      <div class="section-label">Control de seguimiento</div>
-      <div class="dash-header-row">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div id="tab-dashboard" class="tab-panel active">
+      <div class="dash-header">
+        <div class="section-label">Control de seguimiento</div>
         <h1 class="section-title">Dashboard de Participación</h1>
-        <span style="font-size:.78rem;color:var(--c-text-muted);" id="last-update">—</span>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+          <p class="section-desc" style="margin-bottom:0;">Estado en tiempo real de los registros por subsistema y academia.</p>
+          <button class="btn-refresh" onclick="cargarDashboard()"><span>↻</span> Actualizar</button>
+        </div>
       </div>
-      <p class="section-desc">Estado en tiempo real de los registros por subsistema y academia.</p>
-    </div>
 
-    <!-- KPIs -->
-    <div class="kpi-row" id="kpi-row">
-      <div class="kpi-card accent">
-        <div class="kpi-card__label">Total subsistemas</div>
-        <div class="kpi-card__value" id="d-total">15</div>
-        <div class="kpi-card__sub">catálogo fijo</div>
+      <!-- KPIs -->
+      <div class="kpi-row" id="kpi-row">
+        <div class="kpi-card accent">
+          <div class="kpi-card__label">Total subsistemas</div>
+          <div class="kpi-card__value" id="d-total">15</div>
+          <div class="kpi-card__sub">catálogo fijo</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__label">Con envío</div>
+          <div class="kpi-card__value" id="d-con-envio">—</div>
+          <div class="kpi-card__sub">al menos una academia</div>
+        </div>
+        <div class="kpi-card kpi-card--sin-envio">
+          <div class="kpi-card__label">Sin envío</div>
+          <div class="kpi-card__value" id="d-sin-envio">—</div>
+          <div class="kpi-card__sub">pendientes</div>
+        </div>
+        <div class="kpi-card kpi-card--parcial">
+          <div class="kpi-card__label">Participación parcial</div>
+          <div class="kpi-card__value" id="d-parcial">—</div>
+          <div class="kpi-card__sub">1–7 academias</div>
+        </div>
+        <div class="kpi-card kpi-card--completo">
+          <div class="kpi-card__label">Participación completa</div>
+          <div class="kpi-card__value" id="d-completo">—</div>
+          <div class="kpi-card__sub">8 academias</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__label">Total registros</div>
+          <div class="kpi-card__value" id="d-general">—</div>
+          <div class="kpi-card__sub">participantes</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__label">Avance general</div>
+          <div class="kpi-card__value" id="d-avance">0%</div>
+          <div class="kpi-card__sub">de 120 posibles</div>
+        </div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Con envío</div>
-        <div class="kpi-card__value" id="d-con-envio">—</div>
-        <div class="kpi-card__sub">al menos una academia</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Sin envío</div>
-        <div class="kpi-card__value" id="d-sin-envio">—</div>
-        <div class="kpi-card__sub">pendientes</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Participación parcial</div>
-        <div class="kpi-card__value" id="d-parcial">—</div>
-        <div class="kpi-card__sub">1–7 academias</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Participación completa</div>
-        <div class="kpi-card__value" id="d-completo">—</div>
-        <div class="kpi-card__sub">8 academias</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Total registros</div>
-        <div class="kpi-card__value" id="d-general">—</div>
-        <div class="kpi-card__sub">participantes</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-card__label">Avance general</div>
-        <div class="kpi-card__value" id="d-avance">0%</div>
-        <div class="kpi-card__sub">de 120 posibles</div>
-      </div>
-    </div>
 
-    <!-- TABLA SUBSISTEMAS -->
-    <div class="table-wrap">
-      <div class="table-wrap__header">
-        <span class="table-wrap__title">Estado por Subsistema</span>
-        <span style="font-size:.75rem;color:var(--c-text-muted);" id="tabla-ts"></span>
+      <!-- TABLA SUBSISTEMAS -->
+      <div class="table-wrap">
+        <div class="table-wrap__header">
+          <span class="table-wrap__title">Estado por Subsistema</span>
+          <span style="font-size:.75rem;color:var(--c-text-muted);" id="tabla-ts"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table id="tabla-subsistemas">
+            <thead>
+              <tr>
+                <th>Subsistema</th>
+                <th>Estado</th>
+                <th>Academias</th>
+                <th>Registros</th>
+                <th>Último registro</th>
+                <th>Responsable</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body">
+              <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--c-text-muted);">Cargando datos…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div style="overflow-x:auto;">
-        <table id="tabla-subsistemas">
-          <thead>
-            <tr>
-              <th>Subsistema</th>
-              <th>Estado</th>
-              <th>Academias</th>
-              <th>Registros</th>
-              <th>Último registro</th>
-              <th>Responsable</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-body">
-            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--c-text-muted);">Cargando datos…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
-    <!-- BARRAS POR ACADEMIA -->
-    <div class="acad-bar-row">
-      <div class="acad-bar-title">Registros por Academia</div>
-      <div id="acad-bars">
-        <!-- Generado por JS -->
+      <!-- BARRAS POR ACADEMIA -->
+      <div class="acad-bar-row">
+        <div class="acad-bar-title">Registros por Academia</div>
+        <div id="acad-bars">
+          <!-- Generado por JS -->
+        </div>
       </div>
     </div>
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- FOOTER con AVISO DE CONFIDENCIALIDAD -->
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-divider"></div>
       <div class="footer-legal">
         <strong>AVISO DE CONFIDENCIALIDAD</strong>
         <span style="display:inline-block; margin:0 4px; color:#B8AFA5;">·</span>
-        De conformidad con lo establecido en el inciso a del artículo 57 del
-        <strong>“Acuerdo por el que se emiten las políticas y disposiciones para impulsar el uso y aprovechamiento de la informática, el gobierno digital, las tecnologías de la información y comunicación, y la seguridad de la información en la Administración Pública Federal”</strong>,
-        se informa que este mensaje y los datos adjuntos son para uso exclusivo de la persona o entidad a la que expresamente ha sido enviada, el cual puede contener información que por su naturaleza deba ser considerada como
-        <span class="highlight">CONFIDENCIAL</span> o <span class="highlight">RESERVADA</span>, en términos de lo dispuesto en la
-        <strong>Ley General de Transparencia y Acceso a la Información Pública</strong> y en la
-        <strong>Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</strong>.
-        Si por error ha recibido esta comunicación:
-        <span class="highlight">1)</span> queda estrictamente prohibido la revelación, retransmisión, difusión, copia, impresión, modificación, alteración en toda o en alguna de sus partes o el uso de la información contenida en el archivo electrónico sea diverso al objeto por el cual se emitió;
-        <span class="highlight">2)</span> notifíquelo al remitente; y
+        De conformidad con lo establecido en el inciso a del artículo 57 del 
+        <strong>“Acuerdo por el que se emiten las políticas y disposiciones para impulsar el uso y aprovechamiento de la informática, el gobierno digital, las tecnologías de la información y comunicación, y la seguridad de la información en la Administración Pública Federal”</strong>, 
+        se informa que este mensaje y los datos adjuntos son para uso exclusivo de la persona o entidad a la que expresamente ha sido enviada, el cual puede contener información que por su naturaleza deba ser considerada como 
+        <span class="highlight">CONFIDENCIAL</span> o <span class="highlight">RESERVADA</span>, en términos de lo dispuesto en la 
+        <strong>Ley General de Transparencia y Acceso a la Información Pública</strong> y en la 
+        <strong>Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</strong>. 
+        Si por error ha recibido esta comunicación: 
+        <span class="highlight">1)</span> queda estrictamente prohibido la revelación, retransmisión, difusión, copia, impresión, modificación, alteración en toda o en alguna de sus partes o el uso de la información contenida en el archivo electrónico sea diverso al objeto por el cual se emitió; 
+        <span class="highlight">2)</span> notifíquelo al remitente; y 
         <span class="highlight">3)</span> bórrelo de inmediato y en forma permanente, junto con cualquier copia digital o impresa, así como cualquier archivo anexo al mismo.
       </div>
       <div class="footer-divider" style="width:40px; margin:8px auto 2px;"></div>
@@ -624,18 +921,17 @@
     </div>
   </footer>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
-
   <!-- ============================================================
-       JAVASCRIPT
+       JAVASCRIPT PRINCIPAL
   ============================================================ -->
   <script>
     /* ============================================================
-       CONFIGURACIÓN — REEMPLAZA CON LA URL DE TU APPS SCRIPT
+       CONFIGURACIÓN
+       REEMPLAZA ESTA URL CON LA DE TU WEB APP PUBLICADA EN APPS SCRIPT
     ============================================================ */
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvapDDlRi6d3I9E5DkbUnM_FP_SC8mUZ1Ymxmllwtg7bRMm-9A6D7RSTT9bv40_k1h/exec';
 
+    /* Catálogo fijo de subsistemas */
     const SUBSISTEMAS = [
       'Albert Einstein', 'ByCENED', 'CECATI', 'CECyTED', 'COBAED',
       'CONALEP', 'DGB 9/31 de Gómez', 'DGB Villa Unión', 'DGETAyCM',
@@ -643,6 +939,7 @@
       'PREPARATORIAS ESTATALES', 'TELEBACHILLERATO COMUNITARIO', 'UJED'
     ];
 
+    /* Catálogo fijo de academias */
     const ACADEMIAS = [
       { id: 'LC',   label: 'Lengua y Comunicación',                          abbr: 'LC'  },
       { id: 'PM',   label: 'Pensamiento Matemático',                         abbr: 'PM'  },
@@ -654,10 +951,14 @@
       { id: 'ING',  label: 'Inglés',                                         abbr: 'IN'  }
     ];
 
+    /* Estado local de resumen */
+    let resumenData = null;
+
     /* ============================================================
-       INICIO
+       INIT
     ============================================================ */
     window.addEventListener('DOMContentLoaded', () => {
+      renderAcadBars([]);
       cargarDashboard();
       setTimeout(() => {
         document.getElementById('initial-loader').classList.add('hidden');
@@ -665,66 +966,78 @@
     });
 
     /* ============================================================
-       CARGAR DASHBOARD
+       RENDER BARRAS DE ACADEMIAS (DASHBOARD)
     ============================================================ */
-    async function cargarDashboard() {
-      const btn = document.querySelector('.btn-refresh');
-      btn.disabled = true;
-      btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Cargando…';
+    function renderAcadBars(counts = {}) {
+      const maxVal = Math.max(...ACADEMIAS.map(a => counts[a.label] || 0), 1);
+      const container = document.getElementById('acad-bars');
+      container.innerHTML = ACADEMIAS.map(a => {
+        const v = counts[a.label] || 0;
+        const pct = Math.round((v / maxVal) * 100);
+        return `
+          <div class="acad-bar-item">
+            <span class="acad-bar-label" title="${a.label}">${a.label}</span>
+            <div class="acad-bar-bg">
+              <div class="acad-bar-fill" style="width:${pct}%"></div>
+            </div>
+            <span class="acad-bar-count">${v}</span>
+          </div>
+        `;
+      }).join('');
+    }
 
+    /* ============================================================
+       CARGAR RESUMEN (dashboard)
+    ============================================================ */
+    async function cargarResumen() {
       try {
         const url = APPS_SCRIPT_URL + '?action=resumen&t=' + Date.now();
         const resp = await fetch(url);
         const data = await resp.json();
-
         if (data.success) {
+          resumenData = data.resumen;
           actualizarDashboard(data.resumen);
-          document.getElementById('last-update').textContent = 'Última actualización: ' + new Date().toLocaleString('es-MX');
-        } else {
-          throw new Error(data.error || 'Error al cargar datos');
         }
       } catch (e) {
-        showToast('✗ Error al cargar: ' + e.message, 'error');
-        console.error(e);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>↻</span> Actualizar';
+        console.warn('No se pudo cargar el resumen:', e.message);
       }
+    }
+
+    async function cargarDashboard() {
+      await cargarResumen();
     }
 
     /* ============================================================
        ACTUALIZAR DASHBOARD
     ============================================================ */
     function actualizarDashboard(r) {
-      const totalSubsistemas = SUBSISTEMAS.length;
-      const totalAcademias = ACADEMIAS.length;
-      const pct = Math.round((r.totalRegistros / (totalSubsistemas * totalAcademias)) * 100);
+      const pct = Math.round((r.totalRegistros / (SUBSISTEMAS.length * ACADEMIAS.length)) * 100);
 
-      document.getElementById('d-total').textContent = totalSubsistemas;
-      document.getElementById('d-con-envio').textContent = r.conEnvio ?? 0;
-      document.getElementById('d-sin-envio').textContent = r.sinEnvio ?? 0;
-      document.getElementById('d-parcial').textContent = r.parcial ?? 0;
-      document.getElementById('d-completo').textContent = r.completo ?? 0;
-      document.getElementById('d-general').textContent = r.totalRegistros ?? 0;
-      document.getElementById('d-avance').textContent = pct + '%';
+      document.getElementById('d-con-envio').textContent   = r.conEnvio  ?? 0;
+      document.getElementById('d-sin-envio').textContent   = r.sinEnvio  ?? 0;
+      document.getElementById('d-parcial').textContent     = r.parcial   ?? 0;
+      document.getElementById('d-completo').textContent    = r.completo  ?? 0;
+      document.getElementById('d-general').textContent     = r.totalRegistros ?? 0;
+      document.getElementById('d-avance').textContent      = pct + '%';
 
-      // Tabla
+      // Tabla de subsistemas
       const tbody = document.getElementById('tabla-body');
       if (!r.porSubsistema || r.porSubsistema.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--c-text-muted);">Sin registros aún</td></tr>';
       } else {
+        // Construir mapa de datos reales
         const mapaReal = {};
         r.porSubsistema.forEach(s => { mapaReal[s.nombre] = s; });
 
         tbody.innerHTML = SUBSISTEMAS.map(nombre => {
           const s = mapaReal[nombre] || { nombre, academias: [], totalRegistros: 0, ultimaFecha: '—', responsable: '—' };
           const numAcad = s.academias?.length || 0;
-          const estado = numAcad === 0 ? 'sin-envio' : numAcad === ACADEMIAS.length ? 'completo' : 'parcial';
+          const estado  = numAcad === 0 ? 'sin-envio' : numAcad === ACADEMIAS.length ? 'completo' : 'parcial';
           const badgeTxt = estado === 'completo' ? 'Completo' : estado === 'parcial' ? 'Parcial' : 'Sin envío';
 
           const pills = ACADEMIAS.map(a => {
-            const tiene = (s.academias || []).some(sa => sa.includes(a.abbr) || sa.includes(a.label));
-            return `<span class="acad-pill ${tiene ? 'has' : 'miss'}" title="${a.label}">${a.abbr}</span>`;
+            const tieneAcad = (s.academias || []).some(sa => sa.includes(a.abbr) || sa.includes(a.label));
+            return `<span class="acad-pill ${tieneAcad ? 'has' : 'miss'}" title="${a.label}">${a.abbr}</span>`;
           }).join('');
 
           return `
@@ -742,39 +1055,10 @@
 
       document.getElementById('tabla-ts').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-MX');
 
-      // Barras por academia
-      const maxVal = Math.max(...ACADEMIAS.map(a => (r.porAcademia || {})[a.label] || 0), 1);
-      const container = document.getElementById('acad-bars');
-      container.innerHTML = ACADEMIAS.map(a => {
-        const v = (r.porAcademia || {})[a.label] || 0;
-        const pctBar = Math.round((v / maxVal) * 100);
-        return `
-          <div class="acad-bar-item">
-            <span class="acad-bar-label" title="${a.label}">${a.label}</span>
-            <div class="acad-bar-bg">
-              <div class="acad-bar-fill" style="width:${pctBar}%"></div>
-            </div>
-            <span class="acad-bar-count">${v}</span>
-          </div>
-        `;
-      }).join('');
+      // Barras academias
+      renderAcadBars(r.porAcademia || {});
     }
 
-    /* ============================================================
-       TOAST
-    ============================================================ */
-    let toastTimer;
-    function showToast(msg, tipo = 'success') {
-      const t = document.getElementById('toast');
-      clearTimeout(toastTimer);
-      t.className = 'toast toast--' + tipo;
-      const icon = tipo === 'success' ? '✓' : tipo === 'error' ? '✗' : '<div class="spinner"></div>';
-      t.innerHTML = icon + ' ' + msg;
-      t.classList.add('show');
-      if (tipo !== 'loading') {
-        toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
-      }
-    }
   </script>
 </body>
 </html>
