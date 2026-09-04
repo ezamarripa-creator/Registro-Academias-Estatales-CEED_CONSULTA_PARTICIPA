@@ -540,6 +540,22 @@
     .kpi-card--completo   { background: #D8F0E6; }
     .kpi-card--parcial    { background: #FDF0D3; }
     .kpi-card--sin-envio  { background: #F5E8E8; }
+    .kpi-card--presencial     { background: #E3ECF5; }
+    .kpi-card--virtual        { background: #E7E1F2; }
+    .kpi-card--sin-confirmar  { background: #F0EDE7; }
+
+    /* SECCIÓN CONFIRMACIÓN DE ASISTENCIA */
+    .subsection-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 6px 0 2px;
+    }
+    .subsection-desc {
+      font-size: .85rem;
+      color: var(--c-text-muted);
+      margin-bottom: 18px;
+    }
 
     /* TABLA SUBSISTEMAS */
     .table-wrap {
@@ -860,6 +876,43 @@
         </div>
       </div>
 
+      <!-- ==================== CONFIRMACIÓN DE ASISTENCIA (COLUMNA L) ==================== -->
+      <div class="dash-header" style="margin-top:6px;">
+        <div class="section-label">Evento 11 de septiembre</div>
+        <div class="subsection-title">Confirmación de Asistencia</div>
+        <p class="subsection-desc">Respuestas de la columna L — Confirmación de la Asistencia del 11 de septiembre.</p>
+      </div>
+
+      <div class="kpi-row" id="kpi-row-confirmacion">
+        <div class="kpi-card kpi-card--presencial">
+          <div class="kpi-card__label">Presencial</div>
+          <div class="kpi-card__value" id="c-presencial">—</div>
+          <div class="kpi-card__sub" id="c-presencial-pct">0% del total</div>
+        </div>
+        <div class="kpi-card kpi-card--virtual">
+          <div class="kpi-card__label">Virtual</div>
+          <div class="kpi-card__value" id="c-virtual">—</div>
+          <div class="kpi-card__sub" id="c-virtual-pct">0% del total</div>
+        </div>
+        <div class="kpi-card kpi-card--sin-confirmar">
+          <div class="kpi-card__label">Sin confirmar</div>
+          <div class="kpi-card__value" id="c-sin-confirmar">—</div>
+          <div class="kpi-card__sub" id="c-sin-confirmar-pct">0% del total</div>
+        </div>
+        <div class="kpi-card accent">
+          <div class="kpi-card__label">Total de respuestas</div>
+          <div class="kpi-card__value" id="c-total">—</div>
+          <div class="kpi-card__sub">registros recibidos</div>
+        </div>
+      </div>
+
+      <div class="acad-bar-row" style="margin-bottom:28px;">
+        <div class="acad-bar-title">Distribución de Confirmaciones</div>
+        <div id="confirmacion-bars">
+          <!-- Generado por JS -->
+        </div>
+      </div>
+
       <!-- TABLA SUBSISTEMAS -->
       <div class="table-wrap">
         <div class="table-wrap__header">
@@ -1057,6 +1110,50 @@
 
       // Barras academias
       renderAcadBars(r.porAcademia || {});
+
+      // Confirmación de asistencia (columna L)
+      actualizarConfirmacion(r.confirmacion || {});
+    }
+
+    /* ============================================================
+       CONFIRMACIÓN DE ASISTENCIA — Columna L
+       Espera que el backend (Apps Script) envíe en el resumen:
+       r.confirmacion = { presencial: N, virtual: N, sinConfirmar: N }
+    ============================================================ */
+    function actualizarConfirmacion(c) {
+      const presencial    = c.presencial    ?? 0;
+      const virtual       = c.virtual       ?? 0;
+      const sinConfirmar  = c.sinConfirmar  ?? 0;
+      const total = presencial + virtual + sinConfirmar;
+
+      document.getElementById('c-presencial').textContent   = presencial;
+      document.getElementById('c-virtual').textContent      = virtual;
+      document.getElementById('c-sin-confirmar').textContent = sinConfirmar;
+      document.getElementById('c-total').textContent        = total;
+
+      const pct = (v) => total > 0 ? Math.round((v / total) * 100) : 0;
+      document.getElementById('c-presencial-pct').textContent    = pct(presencial) + '% del total';
+      document.getElementById('c-virtual-pct').textContent       = pct(virtual) + '% del total';
+      document.getElementById('c-sin-confirmar-pct').textContent = pct(sinConfirmar) + '% del total';
+
+      const barras = [
+        { label: 'Presencial',    valor: presencial,   color: 'var(--c-blue-soft)' },
+        { label: 'Virtual',       valor: virtual,       color: 'var(--c-accent)' },
+        { label: 'Sin confirmar', valor: sinConfirmar,  color: 'var(--c-warn)' }
+      ];
+      const maxVal = Math.max(...barras.map(b => b.valor), 1);
+      document.getElementById('confirmacion-bars').innerHTML = barras.map(b => {
+        const pctBar = Math.round((b.valor / maxVal) * 100);
+        return `
+          <div class="acad-bar-item">
+            <span class="acad-bar-label">${b.label}</span>
+            <div class="acad-bar-bg">
+              <div class="acad-bar-fill" style="width:${pctBar}%;background:${b.color};"></div>
+            </div>
+            <span class="acad-bar-count">${b.valor}</span>
+          </div>
+        `;
+      }).join('');
     }
 
   </script>
